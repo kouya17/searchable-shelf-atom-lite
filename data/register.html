@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8">
+  <title>部品登録ページ</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <link rel="stylesheet" type="text/css" href="register.css">
+</head>
+
+<body>
+  <a href="/">TOP</a>
+  <h1>部品登録ページ</h1>
+  <p>部品一覧を入力してください。</p>
+  <div>
+    <textarea id="input-parts" class="input-parts" name="parts" placeholder="部品一覧"></textarea>
+  </div>
+  <button id="convert-parts-list" onclick="convertPartsList()">一覧表へ変換</button>
+  <p>一覧表</p>
+  <table>
+    <thead>
+      <tr>
+        <th>通販コード</th>
+        <th>部品名</th>
+        <th>個数</th>
+        <th>収納場所</th>
+        <th>メモ</th>
+      </tr>
+    </thead>
+    <tbody id="table-parts"></tbody>
+  </table>
+  <button id="register" onclick="postPartsTable()">登録</button>
+  <div id="result"></div>
+  <a href="/">TOP</a>
+  <script type="text/javascript" src="register.js"></script>
+</body>
+
+</html>

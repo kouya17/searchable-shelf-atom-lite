@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8">
+  <title>部品登録ページ(カスタム)</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+
+<body>
+  <a href="/">TOP</a>
+  <h1>部品登録ページ(カスタム)</h1>
+  <p>登録する部品を入力してください。</p>
+  <div>
+    <label for="code">通販コード</label>
+    <input type="text" name="code" id="code">
+  </div>
+  <div>
+    <label for="name">部品名</label>
+    <input type="text" name="name" id="name">
+  </div>
+  <div>
+    <label for="count">個数</label>
+    <input type="number" name="count" id="count">
+  </div>
+  <div id="input-shelf_id">
+    <label for="shelf_id">収納場所</label>
+  </div>
+  <div>
+    <label for="memo">メモ</label>
+    <input type="text" name="memo" id="memo">
+  </div>
+  <button id="register" onclick="onRegister()">登録</button>
+  <div id="result"></div>
+  <a href="/">TOP</a>
+  <script type="module" src="register_custom.js"></script>
+</body>
+
+</html>
