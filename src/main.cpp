@@ -16,8 +16,9 @@ void setup()
 {
   M5.begin(true, true, true);
   Wire.setClock(400000);
-  WifiManager::beginWithConfigFiles("/conf/ssid.txt", "/conf/pass.txt");
-  MDNS.begin("searchable-shelf");
+  WifiManager::beginWifiWithConfigFiles("/conf/ssid.txt", "/conf/pass.txt");
+  WifiManager::setSoftAPWithConfigFiles("/conf/softap_ssid.txt", "/conf/softap_pass.txt");
+  MDNS.begin("sshelf");
   configTime(9 * 3600L, 0, "ntp.nict.jp", "time.google.com", "ntp.jst.mfeed.ad.jp");
   server.reset(new AppServer(HTTP_PORT));
   DB::initialize("/sd/searchable_shelf.db");

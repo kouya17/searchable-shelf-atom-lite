@@ -14,7 +14,7 @@ const countCellClass = "part-count";
 const shelfCellClass = "part-shelf";
 const memoCellClass = "part-memo";
 
-fetch("http://searchable-shelf.local/api/shelfs")
+fetch("http://sshelf.local/api/shelfs")
     .then(res => res.json())
     .then(data => {
         shelfList = data;
@@ -85,7 +85,7 @@ function convertPartsList() {
 }
 
 async function postPart(part) {
-    const res = await fetch('http://searchable-shelf.local/api/parts', {
+    const res = await fetch('http://sshelf.local/api/parts', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

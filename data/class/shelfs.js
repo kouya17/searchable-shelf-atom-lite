@@ -2,7 +2,7 @@ export class Shelfs {
     value = [];
 
     async update() {
-        let url = 'http://searchable-shelf.local/api/shelfs';
+        let url = 'http://sshelf.local/api/shelfs';
         const res = await fetch(url);
         this.value = await res.json();
         return this.value;
@@ -28,5 +28,13 @@ export class Shelfs {
             pre.appendChild(option);
             return pre;
         }, select);
+    }
+
+    getPort(shelf_id) {
+        return this.value[shelf_id - 1].port;
+    }
+
+    allOff() {
+        fetch('http://sshelf.local/api/ports/off');
     }
 }

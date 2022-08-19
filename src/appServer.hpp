@@ -9,6 +9,9 @@
 #include <ArduinoJson.h>
 #include "shelf.hpp"
 #include "leds.hpp"
+#include "string.hpp"
+#include <algorithm>
+#include <iterator>
 
 namespace
 {
@@ -35,7 +38,7 @@ public:
         _server->on("^\\/api\\/shelfs\\/([0-9]+)$", HTTP_GET, [](AsyncWebServerRequest *request) {
             int id = request->pathArg(0).toInt();
             auto shelf = Shelf::getById(id);
-            AsyncJsonResponse *response = new AsyncJsonResponse(true, 1024);
+            AsyncJsonResponse *response = new AsyncJsonResponse(true, 2048);
             JsonVariant &root = response->getRoot();
             shelf.setToJsonArrayAt(root, 0);
             response->setLength();
@@ -43,7 +46,7 @@ public:
         });
         _server->on("/api/shelfs", HTTP_GET, [](AsyncWebServerRequest *request) {
             auto shelfs = Shelf::get();
-            AsyncJsonResponse *response = new AsyncJsonResponse(true, 10240);
+            AsyncJsonResponse *response = new AsyncJsonResponse(true, 2048);
             JsonVariant &root = response->getRoot();
             Serial.printf("shelfs.size() = %d\n", shelfs.size());
             for (int i = 0; i < shelfs.size(); i++) {
@@ -77,19 +80,37 @@ public:
         });
         _server->addHandler(post_handler);
         // FIXME: make common class for controller
-        _server->on("/api/parts", HTTP_GET, [](AsyncWebServerRequest *request) {
+        _server->on("/api/parts", HTTP_GET, [this](AsyncWebServerRequest *request) {
             std::string cond = "";
+            std::vector<Part> parts{};
+            int item_count = -1;
             if (request->hasArg("name")) {
-                cond = "name LIKE '%" + std::string(request->arg("name").c_str()) + "%'";
+                int page = 1;
+                if (request->hasArg("page")) {
+                    page = request->arg("page").toInt();
+                }
+                std::string name = std::string(request->arg("name").c_str());
+                std::string name_mb = util::string::toMultiByte(name);
+                item_count = Part::counts("name LIKE '%" + name + "%'");
+                item_count += Part::counts("name LIKE '%" + name_mb + "%'");
+                Serial.println(item_count);
+                parts = Part::get("name LIKE '%" + name + "%'", parts_num_per_page, parts_num_per_page * (page - 1));
+                if (name_mb != name) {
+                    std::vector<Part> parts_mb = Part::get("name LIKE '%" + name_mb + "%'");
+                    std::copy(parts_mb.begin(), parts_mb.end(), std::back_inserter(parts));
+                }
+            } else {
+                parts = Part::get("", parts_num_per_page);
             }
-            auto parts = Part::get(cond);
-            AsyncJsonResponse *response = new AsyncJsonResponse(true, 10240);
+            AsyncJsonResponse *response = new AsyncJsonResponse(false, 2048);
             JsonVariant &root = response->getRoot();
             Serial.printf("parts.size() = %d\n", parts.size());
+            JsonArray rootParts = root.createNestedArray("parts");
             for (int i = 0; i < parts.size(); i++) {
                 // FIXME: remove index from argument
-                parts[i].setToJsonArrayAt(root, i);
+                parts[i].setToJsonArrayAt(rootParts, i);
             }
+            root["maxPage"] = item_count == -1 ? item_count : item_count / parts_num_per_page + 1;
             response->setLength();
             request->send(response);
         });
@@ -141,6 +162,9 @@ public:
             _leds->offAll();
             request->send(200, "application/json", "{}");
         });
+        DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "http://127.0.0.1:5500");
+        DefaultHeaders::Instance().addHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PATCH, DELETE");
+        DefaultHeaders::Instance().addHeader("Access-Control-Allow-Headers", "Content-Type");
         _server->begin();
     }
 
@@ -155,4 +179,5 @@ private:
         request->send(response);
     }
     std::unique_ptr<Leds> _leds{};
+    int parts_num_per_page = 10;
 };

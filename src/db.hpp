@@ -23,6 +23,11 @@ namespace {
         results->push_back(result);
         return 0;
     }
+    int getIntCallback(void *data, int argc, char **argv, char**azColName) {
+        int *result = (int *)data;
+        *result = atoi(argv[0]);
+        return 0;
+    }
 }
 
 class DB {
@@ -40,14 +45,27 @@ public:
         exec_sql("PRAGMA foreign_keys=true");
         return true;
     }
-    static std::vector<std::map<std::string, std::string>> select(std::string table, std::string cond = "") {
+    static std::vector<std::map<std::string, std::string>> select(std::string table, std::string cond = "", std::string extra = "") {
         std::string sql = "SELECT * FROM " + table;
         if (cond != "") {
             sql += " WHERE " + cond;
         }
+        if (extra != "") {
+            sql += " " + extra;
+        }
         std::vector<std::map<std::string, std::string>> result {};
         void *data = (void *)&result;
         exec_sql(sql, getRowCallback, data);
+        return result;
+    }
+    static int count(std::string table, std::string cond = "") {
+        std::string sql = "SELECT count(*) FROM " + table;
+        if (cond != "") {
+            sql += " WHERE " + cond;
+        }
+        int result {};
+        void *data = (void *)&result;
+        exec_sql(sql, getIntCallback, data);
         return result;
     }
     static int insert(std::string table, std::map<std::string, std::string> values) {

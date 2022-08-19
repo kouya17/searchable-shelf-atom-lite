@@ -1,3 +1,7 @@
+import { Shelfs } from '/class/shelfs.js';
+import { Parts } from '/class/parts.js';
+import { Search } from '/class/search.js';
+
 function updateShelf(shelfs) {
     const ulShelfList = document.getElementById("shelf-list");
     while (ulShelfList.firstChild) {
@@ -11,13 +15,13 @@ function updateShelf(shelfs) {
 }
 
 async function getShelfs() {
-    const res = await fetch('http://searchable-shelf.local/api/shelfs');
+    const res = await fetch('http://sshelf.local/api/shelfs');
     const resData = await res.json();
     console.log("get shelfs:", resData);
     return resData;
 }
 
-async function addShelf() {
+const addShelf = async function () {
     const name = document.getElementById("add-shelf-name").value;
     const port = parseInt(document.getElementById("add-shelf-port").value);
     const memo = document.getElementById("add-shelf-memo").value;
@@ -27,7 +31,7 @@ async function addShelf() {
         port: port,
         memo: memo
     }
-    const res = await fetch('http://searchable-shelf.local/api/shelfs', {
+    const res = await fetch('http://sshelf.local/api/shelfs', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -37,8 +41,8 @@ async function addShelf() {
     const shelfs = await getShelfs();
     updateShelf(shelfs);
 }
+window.addShelf = addShelf;
 
-import { Parts } from '/parts.js';
 const parts = new Parts();
 async function getParts() {
     const partsValue = await parts.update();
@@ -62,10 +66,10 @@ function updateParts(parts) {
     });
 }
 
-document.getElementById('input-search').oninput = function() {
-    document.getElementById('button-search').onclick = function() {
-        location.href = '/search.html?name=' + document.getElementById('input-search').value;
-    };
-};
-getShelfs().then(shelfs => updateShelf(shelfs));
+Search.setSearchFunctions('input-search', 'button-search');
+const shelfs = new Shelfs();
+shelfs.update().then(value => {
+    updateShelf(value);
+    shelfs.allOff();
+})
 getParts().then(parts => updateParts(parts));

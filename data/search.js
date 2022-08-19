@@ -1,12 +1,8 @@
-import { Parts } from '/parts.js';
+import { Parts } from '/class/parts.js';
+import { Search } from '/class/search.js';
+import { Shelfs } from '/class/shelfs.js';
+
 const parts = new Parts();
-async function getParts(searchStr) {
-    const partsValue = await parts.update({
-        name: searchStr
-    });
-    console.log("get parts:", partsValue);
-    return partsValue
-}
 
 function updateParts(parts) {
     const divSearchResult = document.getElementById("search-result");
@@ -17,7 +13,7 @@ function updateParts(parts) {
         var div = document.createElement("div");
         div.className = "search-result-div";
         var nameLink = document.createElement("a");
-        nameLink.href = "/api/parts/" + part.id;
+        nameLink.href = "/part.html" + Parts.toQueryString(part);
         var name = document.createElement("h2");
         name.innerHTML = part.name;
         nameLink.appendChild(name);
@@ -43,4 +39,7 @@ function updateParts(parts) {
 
 const searchStr = (new URLSearchParams(document.location.search.substring(1))).get("name");
 document.getElementById("input-search").defaultValue = searchStr;
-getParts(searchStr).then(parts => updateParts(parts));
+parts.update({ name: searchStr }).then(parts => updateParts(parts));
+Search.setSearchFunctions('input-search', 'button-search');
+const shelfs = new Shelfs();
+shelfs.update().then(v => { shelfs.allOff(); });

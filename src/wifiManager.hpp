@@ -6,12 +6,29 @@
 class WifiManager
 {
 public:
-    static void beginWithConfigFiles(const char *ssid_path, const char *pass_path)
+    static void beginWifiWithConfigFiles(const char *ssid_path, const char *pass_path)
     {
         SPIFFS.begin();
         String ssid = _read(SPIFFS, ssid_path);
         String pass = _read(SPIFFS, pass_path);
-        _connect(ssid, pass);
+        if (ssid != "" && pass != "") {
+            _connect(ssid, pass);
+        } else {
+            Serial.println("there are no wifi config files");
+        }
+    }
+    static void setSoftAPWithConfigFiles(const char *ssid_path, const char *pass_path)
+    {
+        SPIFFS.begin();
+        String ssid = _read(SPIFFS, ssid_path);
+        String pass = _read(SPIFFS, pass_path);
+        if (ssid != "" && pass != "") {
+            WiFi.softAP(ssid.c_str(), pass.c_str());
+            delay(100);
+            WiFi.softAPConfig(IPAddress(192,168,4,1), IPAddress(192,168,4,1), IPAddress(255, 255, 255,0));
+        } else {
+            Serial.println("there are no softAP config files");
+        }
     }
 
 private:
@@ -21,7 +38,7 @@ private:
         if (!file || file.isDirectory())
         {
             Serial.println("failed to open wifi config file.");
-            return String();
+            return "";
         }
 
         String content;

@@ -61,7 +61,7 @@ public:
         return json;
     }
     // FIXME: remove index from argument
-    void setToJsonArrayAt(JsonVariant &json, int i) const {
+    void setToJsonArrayAt(JsonArray json, int i) const {
         json[i]["id"] = this->id;
         json[i]["code"] = this->code;
         json[i]["name"] = this->name;
@@ -85,8 +85,11 @@ public:
         part.shelf_id = json["shelf_id"] | -1;
         return part;
     }
-    static std::vector<Part> get(std::string cond = "") {
-        return Part::MapsToParts(DB::select(Part::table_name, cond));
+    static std::vector<Part> get(std::string cond = "", int limit = 0, int offset = 0) {
+        return Part::MapsToParts(DB::select(Part::table_name, cond, "ORDER BY updated_at DESC LIMIT " + std::to_string(limit) + " OFFSET " + std::to_string(offset)));
+    }
+    static int counts(std::string cond = "") {
+        return DB::count(Part::table_name, cond);
     }
     static bool deleteById(int id) {
         return DB::deleteById(Part::table_name, id);

@@ -1,5 +1,13 @@
-import { Shelfs } from "/shelfs.js";
-import { Parts } from "/parts.js";
+import { Shelfs } from "/class/shelfs.js";
+import { Parts } from "/class/parts.js";
+
+function clearInputs() {
+    document.getElementById("code").value = "";
+    document.getElementById("name").value = "";
+    document.getElementById("count").value = "";
+    document.getElementById("shelf_id").value = 1;
+    document.getElementById("memo").value = "";
+}
 
 const onRegister = function () {
     const part = {
@@ -10,7 +18,11 @@ const onRegister = function () {
         memo: document.getElementById("memo").value
     }
     console.log(part);
-    Parts.post(part);
+    Parts.post(part).then(res => {
+        console.log("succeeded to register.")
+        document.getElementById("result").innerText = part.name + "を登録しました！";
+        clearInputs();
+    });
 }
 
 const shelfs = new Shelfs;

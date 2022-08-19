@@ -10,7 +10,7 @@ public:
         _initializePca();
     }
     void on(int port) {
-        _pca[0].setPWM(port, 0, 256);
+        _pca[0].setPWM(port, 0, 1024);
     }
     void off(int port) {
         _pca[0].setPWM(port, 0, 0);
