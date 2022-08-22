@@ -5,6 +5,7 @@ import { Shelfs } from '/class/shelfs.js';
 const parts = new Parts();
 
 function updateParts(parts) {
+    console.log(parts);
     const divSearchResult = document.getElementById("search-result");
     while (divSearchResult.firstChild) {
         divSearchResult.removeChild(divSearchResult.firstChild);
