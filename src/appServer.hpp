@@ -83,7 +83,9 @@ public:
         _server->on("/api/parts", HTTP_GET, [this](AsyncWebServerRequest *request) {
             std::string cond = "";
             std::vector<Part> parts{};
-            int item_count = -1;
+            std::vector<Part> parts_mb{};
+            int item_count = 0;
+            int item_count_mb = 0;
             if (request->hasArg("name")) {
                 int page = 1;
                 if (request->hasArg("page")) {
@@ -92,12 +94,26 @@ public:
                 std::string name = std::string(request->arg("name").c_str());
                 std::string name_mb = util::string::toMultiByte(name);
                 item_count = Part::counts("name LIKE '%" + name + "%'");
-                item_count += Part::counts("name LIKE '%" + name_mb + "%'");
-                Serial.println(item_count);
-                parts = Part::get("name LIKE '%" + name + "%'", parts_num_per_page, parts_num_per_page * (page - 1));
                 if (name_mb != name) {
-                    std::vector<Part> parts_mb = Part::get("name LIKE '%" + name_mb + "%'");
-                    std::copy(parts_mb.begin(), parts_mb.end(), std::back_inserter(parts));
+                    item_count_mb = Part::counts("name LIKE '%" + name_mb + "%'");
+                }
+                Serial.printf("item_count: %d, item_count_mb: %d\n", item_count, item_count_mb);
+                int item_offset_sum = parts_num_per_page * (page - 1);
+                if (item_count > item_offset_sum) {
+                    int remain_item_count = item_count - item_offset_sum;
+                    if (remain_item_count >= parts_num_per_page) {
+                        parts = Part::get("name LIKE '%" + name + "%'", parts_num_per_page, item_offset_sum);
+                    } else {
+                        parts = Part::get("name LIKE '%" + name + "%'", remain_item_count, item_offset_sum);
+                        if (item_count_mb > 0) {
+                            parts_mb = Part::get("name LIKE '%" + name_mb + "%'", parts_num_per_page - remain_item_count, 0);
+                            parts.insert(parts.end(), parts_mb.begin(), parts_mb.end());
+                        }
+                    }
+                } else {
+                    if (item_count_mb > 0) {
+                        parts = Part::get("name LIKE '%" + name_mb + "%'", parts_num_per_page, item_offset_sum - item_count);
+                    }
                 }
             } else {
                 parts = Part::get("", parts_num_per_page);
@@ -110,7 +126,7 @@ public:
                 // FIXME: remove index from argument
                 parts[i].setToJsonArrayAt(rootParts, i);
             }
-            root["maxPage"] = item_count == -1 ? item_count : item_count / parts_num_per_page + 1;
+            root["maxPage"] = (item_count + item_count_mb) / parts_num_per_page + 1;
             response->setLength();
             request->send(response);
         });
@@ -179,5 +195,5 @@ private:
         request->send(response);
     }
     std::unique_ptr<Leds> _leds{};
-    int parts_num_per_page = 10;
+    int parts_num_per_page = 5;
 };

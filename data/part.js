@@ -15,7 +15,7 @@ function renderPartDetail(shelfs, params) {
     const keys = [
         "name",
         "code",
-        "count",
+        //"count",
         // "shelf_id",
         "created_at",
         "updated_at"
@@ -23,6 +23,11 @@ function renderPartDetail(shelfs, params) {
     keys.forEach(key => {
         document.getElementById("part-" + key).textContent = params.get(key);
     })
+    var countInput = document.createElement("input");
+    countInput.onchange = (e) => {partClient.update(parseInt(params.get("id")), { count: parseInt(e.currentTarget.value) })};
+    countInput.type = "number";
+    countInput.defaultValue = parseInt(params.get("count"));
+    document.getElementById("part-count").appendChild(countInput);
     document.getElementById("part-shelf_id").appendChild(shelfs.getSelectElement("part-shelf_id-select", onShelfChange, params.get("shelf_id")));
 }
 

@@ -45,9 +45,9 @@ window.addShelf = addShelf;
 
 const parts = new Parts();
 async function getParts() {
-    const partsValue = await parts.update();
-    console.log("get parts:", partsValue);
-    return partsValue
+    const res = await parts.update();
+    console.log("get parts:", res);
+    return res.parts;
 }
 
 function updateParts(parts) {

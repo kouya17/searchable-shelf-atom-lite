@@ -8,9 +8,13 @@ export class Parts {
         if (cond !== undefined && cond.name !== undefined) {
             url += '?name=' + cond.name;
         }
+        if (cond !== undefined && cond.page !== undefined) {
+            url += '&page=' + cond.page;
+        }
+        console.log(url);
         const res = await fetch(url);
         this.value = await res.json();
-        return this.value.parts;
+        return this.value;
     }
 
     static toQueryString(part) {
